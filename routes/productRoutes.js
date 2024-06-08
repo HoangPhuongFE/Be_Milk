@@ -13,9 +13,9 @@ router.get('/', productController.getAllProducts);
 router.get('/:id', productController.getProductById);
 
 // Cập nhật sản phẩm (Chỉ dành cho Admin)
-router.put('/:id', authenticateToken, authorizeRole(['admin']), productController.updateProduct);
+router.put('/:id', authenticateToken, authorizeRole(['admin','staff']), productController.updateProduct);
 
 // Xóa sản phẩm (Chỉ dành cho Admin)
-router.delete('/:id', authenticateToken, authorizeRole(['admin']), productController.deleteProduct);
+router.delete('/:id', authenticateToken, authorizeRole(['admin','staff']), productController.deleteProduct);
 
 module.exports = router;

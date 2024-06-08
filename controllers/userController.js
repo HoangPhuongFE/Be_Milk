@@ -51,7 +51,7 @@ exports.login = async (req, res) => {
     if (!validPass) return res.status(400).json({ message: 'Invalid password' });
 
     // Tạo và gán JWT
-    const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.header('Authorization', 'Bearer ' + token).json({ token });
   } catch (err) {
     res.status(400).json({ message: err.message });
