@@ -1,8 +1,30 @@
 const { Review } = require('../models');
-
+/*
 exports.createReview = async (req, res) => {
   const { product_id, rating, comment } = req.body;
-  const user_id = req.user.user_id;
+  const user_id = req.user.user_id; null;
+
+  try {
+    const review = await Review.create({
+      product_id,
+      rating,
+      comment,
+      user_id
+    });
+
+    res.status(201).json(review);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+*/
+exports.createReview = async (req, res) => {
+  const { product_id, rating, comment } = req.body;
+  const user_id = req.user ? req.user.user_id : null; 
+
+  if (!user_id) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
 
   try {
     const review = await Review.create({
