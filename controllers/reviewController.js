@@ -19,6 +19,7 @@ exports.createReview = async (req, res) => {
 };
 */
 exports.createReview = async (req, res) => {
+  console.log('User:', req.user);  
   const { product_id, rating, comment } = req.body;
   const user_id = req.user ? req.user.user_id : null; 
 
