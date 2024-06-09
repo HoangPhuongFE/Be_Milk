@@ -8,7 +8,8 @@ exports.initializeSocket = (socketIo) => {
 
 exports.createMessage = async (req, res) => {
   const { message, recipient_id } = req.body;
-  const user_id = req.user.user_id; // Gán đúng user_id từ req.user
+  //const user_id = req.user.user_id; // Gán đúng user_id từ req.user
+  const user_id =req.user?.id
 
   try {
     const chat = await Chat.create({
