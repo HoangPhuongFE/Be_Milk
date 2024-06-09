@@ -4,6 +4,6 @@ const chatController = require('../controllers/chatController');
 const { authenticateToken } = require('../middlewares/auth');
 
 router.post('/', authenticateToken, chatController.createMessage);
-router.get('/', authenticateToken, chatController.getMessages);
+router.get('/:recipient_id', authenticateToken, chatController.getMessages);
 
 module.exports = router;

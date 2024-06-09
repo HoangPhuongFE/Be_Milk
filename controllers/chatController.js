@@ -8,8 +8,8 @@ exports.initializeSocket = (socketIo) => {
 
 exports.createMessage = async (req, res) => {
   const { message, recipient_id } = req.body;
-  //const user_id = req.user.user_id; // Gán đúng user_id từ req.user
-  const user_id =req.user?.id
+ // const sender_id = req.user.user_id; // Đảm bảo lấy đúng user_id từ req.user
+ const user_id = req.user.id;
 
   try {
     const chat = await Chat.create({
@@ -28,19 +28,19 @@ exports.createMessage = async (req, res) => {
 };
 
 exports.getMessages = async (req, res) => {
-  const user_id = req.user.user_id;
+  const user_id = req.user.id;
 
   try {
     const chats = await Chat.findAll({
       where: {
         [Op.or]: [
-          { user_id },
+          { user_id: user_id },
           { recipient_id: user_id }
         ]
       },
       include: [{
         model: User,
-        as: 'sender',
+        as: 'user',
         attributes: ['user_id', 'email', 'full_name']
       }, {
         model: User,
