@@ -4,7 +4,7 @@ const productController = require('../controllers/productController');
 const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 
 // Tạo sản phẩm mới (Chỉ dành cho Admin)
-router.post('/', authenticateToken, authorizeRole(['admin']), productController.createProduct);
+router.post('/', authenticateToken, authorizeRole(['admin','staff']), productController.createProduct);
 
 // Lấy danh sách sản phẩm
 router.get('/', productController.getAllProducts);

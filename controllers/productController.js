@@ -3,10 +3,43 @@ const { Product } = require('../models');
 // Tạo sản phẩm mới
 exports.createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const {
+      category_id,
+      product_name,
+      description,
+      quantity,
+      price,
+      image_url,
+      status,
+      age,
+      weight,
+      placeOfProduction,
+      warranty,
+      brandOfOrigin,
+      numberOfSale,
+      ingredient,
+      outstandingFeatures
+    } = req.body;
+    const product = await Product.create({
+      category_id,
+      product_name,
+      description,
+      quantity,
+      price,
+      image_url,
+      status,
+      age,
+      weight,
+      placeOfProduction,
+      warranty,
+      brandOfOrigin,
+      numberOfSale,
+      ingredient,
+      outstandingFeatures
+    });
     res.status(201).json(product);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
   }
 };
 
