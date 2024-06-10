@@ -3,23 +3,20 @@ const fs = require('fs');
 const path = require('path');
 
 exports.createArticle = async (req, res) => {
-  const { title, content, author } = req.body;
-  const images = req.files;
-
   try {
-    const article = await Article.create({ title, content, author });
+    const { title,
+       content,
+        author ,
+         image_url 
+        } = req.body;
+    const article = await Article.create({
+      title, 
+      content,
+       author, 
+       image_url });
+    res.status(201).json({ message: 'Article created successfully', article });
 
-    const imagePromises = images.map(file => {
-      const imagePath = path.join('uploads', file.filename);
-      return Image.create({ article_id: article.article_id, url: imagePath });
-    });
-
-    await Promise.all(imagePromises);
-
-    const createdArticle = await Article.findByPk(article.article_id, { include: 'images' });
-
-    res.status(201).json(createdArticle);
-  } catch (error) {
+  }catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
@@ -65,48 +62,30 @@ exports.getArticleById = async (req, res) => {
 };
 
 exports.updateArticle = async (req, res) => {
-  const { article_id } = req.params;
-  const { title, content, author } = req.body;
-  const images = req.files;
+  try{
 
-  try {
-    const article = await Article.findByPk(article_id);
+     const { article_id } = req.params;
+  const { title, 
+    content,
+     author, 
+     image_url 
+    } = req.body; 
+  const article = await Article.findByPk(article_id);
+  if (!article) {
+    return res.status(404).json({ message: 'Article not found' });
+  }
 
-    if (!article) {
-      return res.status(404).json({ message: 'Article not found' });
-    }
-
-    article.title = title;
-    article.content = content;
-    article.author = author;
-    await article.save();
-
-    if (images) {
-      // Xóa ảnh cũ
-      await Image.destroy({ where: { article_id } });
-
-      const imagePromises = images.map(file => {
-        const imagePath = path.join('uploads', file.filename);
-        return Image.create({ article_id: article.article_id, url: imagePath });
-      });
-
-      await Promise.all(imagePromises);
-    }
-
-    const updatedArticle = await Article.findByPk(article.article_id, { include: 'images' });
-
-    const articleWithPublicUrls = {
-      ...updatedArticle.toJSON(),
-      images: updatedArticle.images.map(image => ({
-        ...image.toJSON(),
-        url: `${req.protocol}://${req.get('host')}/${image.url}`
-      }))
-    };
-
-    res.status(200).json(articleWithPublicUrls);
+  article.title = title || article.title;
+  article.content = content || article.content;  
+  article.author = author || article.author; 
+  article.image_url = image_url || article.image_url;
+  await article.save();
+  res.status(200).json(article);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+  
+
 };
 
 exports.deleteArticle = async (req, res) => {
