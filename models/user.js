@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    gender: DataTypes.INTEGER,
+    gender: DataTypes.ENUM('male', 'female', 'other'),  
     full_name: DataTypes.STRING,
     birthday: DataTypes.DATE,
     coin: DataTypes.INTEGER,

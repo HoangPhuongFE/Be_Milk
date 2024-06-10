@@ -1,1 +1,12 @@
 * text=auto
+# Đặt tất cả các tệp văn bản để sử dụng dòng kết thúc LF trên máy Unix
+* text=auto eol=lf
+
+# Đặt các tệp có phần mở rộng cụ thể để sử dụng dòng kết thúc CRLF trên Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Đặt các tệp JSON, YAML, và các tệp văn bản khác để sử dụng dòng kết thúc LF
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

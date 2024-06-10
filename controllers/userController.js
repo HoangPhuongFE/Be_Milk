@@ -81,7 +81,7 @@ exports.getAllUsers = async (req, res) => {
 // Cập nhật thông tin người dùng
 exports.updateUser = async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phone, gender, full_name, birthday, address, avatar_url } = req.body;
 
     // Kiểm tra số điện thoại
     const phoneRegex = /^[0-9]{10,11}$/;
@@ -89,8 +89,34 @@ exports.updateUser = async (req, res) => {
       return res.status(400).json({ message: 'Phone number must be 10 or 11 digits long' });
     }
 
-    await User.update(req.body, { where: { user_id: req.user.id } });
-    res.status(200).json({ message: 'User information updated successfully' });
+    // Kiểm tra giá trị hợp lệ cho giới tính
+    const validGenders = ['male', 'female', 'other'];
+    if (gender && !validGenders.includes(gender)) {
+      return res.status(400).json({ message: 'Invalid gender value' });
+    }
+
+    // Kiểm tra định dạng ngày sinh
+    if (birthday && isNaN(Date.parse(birthday))) {
+      return res.status(400).json({ message: 'Invalid date format for birthday' });
+    }
+
+    // Tìm người dùng theo ID
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Cập nhật thông tin người dùng
+    user.phone = phone || user.phone;
+    user.gender = gender || user.gender;
+    user.full_name = full_name || user.full_name;
+    user.birthday = birthday || user.birthday;
+    user.address = address || user.address;
+    user.avatar_url = avatar_url || user.avatar_url;
+
+    await user.save();
+
+    res.status(200).json({ message: 'User information updated successfully', user });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

@@ -26,6 +26,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const chatRoutes = require('./routes/chatRoutes'); 
 
+
+
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -36,7 +38,6 @@ app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes); 
-
 
 
 
