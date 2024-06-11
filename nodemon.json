@@ -1,6 +1,6 @@
 {
-    "watch": ["app.js", "routes/", "controllers/", "models/"],
+    "watch": ["src"],
     "ext": "js,json",
     "ignore": ["node_modules/"],
-    "exec": "node --inspect app.js"
+    "exec": "node ./src/app.js"
   }
