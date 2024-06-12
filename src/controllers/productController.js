@@ -19,6 +19,7 @@ exports.createProduct = async (req, res) => {
       brandOfOrigin,
       numberOfSale,
       ingredient,
+      userManual,
       outstandingFeatures
     } = req.body;
     const product = await Product.create({
