@@ -92,8 +92,6 @@ exports.applyVoucher = async (req, res) => {
       return res.status(404).json({ message: 'Voucher not found or expired' });
     }
 
-    // Logic to apply the voucher to the user's order or cart
-    // ...
 
     res.status(200).json({ message: 'Voucher applied successfully', discount: voucher.discount });
   } catch (err) {

@@ -4,9 +4,9 @@ const paymentMethodController = require('../controllers/paymentMethodController'
 const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 
 // Định nghĩa các route cho phương thức thanh toán
-router.post('/', authenticateToken, authorizeRole(['admin']), paymentMethodController.createPaymentMethod);
+router.post('/', authenticateToken, authorizeRole(['admin','staff']), paymentMethodController.createPaymentMethod);
 router.get('/', authenticateToken, paymentMethodController.getPaymentMethods);
-router.put('/:method_id', authenticateToken, authorizeRole(['admin']), paymentMethodController.updatePaymentMethod);
-router.delete('/:method_id', authenticateToken, authorizeRole(['admin']), paymentMethodController.deletePaymentMethod);
+router.put('/:method_id', authenticateToken, authorizeRole(['admin','staff']), paymentMethodController.updatePaymentMethod);
+router.delete('/:method_id', authenticateToken, authorizeRole(['admin','staff']), paymentMethodController.deletePaymentMethod);
 
 module.exports = router;
