@@ -23,19 +23,19 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     price: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: true
     },
     image_url: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       allowNull: true
     },
     status: {
       type: DataTypes.ENUM('available', 'out_of_stock', 'discontinued'),
-      allowNull: false,
+      allowNull: true,
       defaultValue: 'available'
     },
     age: {

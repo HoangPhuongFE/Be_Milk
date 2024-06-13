@@ -20,6 +20,15 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      /* status: {
+        type: Sequelize.ENUM('draft', 'published'),
+        allowNull: false,
+        defaultValue: 'draft'
+      }, */
+      image_url: {
+        type: Sequelize.JSON,
+        allowNull: true
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

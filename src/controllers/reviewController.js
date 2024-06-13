@@ -56,7 +56,7 @@ exports.updateReview = async (req, res) => {
   const { rating, comment } = req.body;
   const user_id = req.user.user_id;
 
-  console.log(`Yêu cầu cập nhật đánh giá với review_id: ${review_id}, bởi user_id: ${user_id}`);
+  // console.log(`Yêu cầu cập nhật đánh giá với review_id: ${review_id}, bởi user_id: ${user_id}`);
 
   try {
     const review = await Review.findByPk(review_id);

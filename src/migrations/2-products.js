@@ -14,7 +14,7 @@ module.exports = {
           key: 'category_id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE' // Change this to 'CASCADE' or 'RESTRICT'
+        onDelete: 'CASCADE' 
       },
       product_name: {
         type: Sequelize.STRING,
@@ -26,15 +26,15 @@ module.exports = {
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       price: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        allowNull: true
       },
       status: {
         type: Sequelize.ENUM('available', 'out_of_stock', 'discontinued'),
-        allowNull: false,
+        allowNull: true,
         defaultValue: 'available'
       },
       age: {
@@ -71,6 +71,10 @@ module.exports = {
       },
       userManual: {
         type: Sequelize.STRING,
+        allowNull: true
+      },
+      image_url: {
+        type: Sequelize.JSON,
         allowNull: true
       },
       createdAt: {

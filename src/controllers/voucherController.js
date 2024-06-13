@@ -1,5 +1,5 @@
+const { Op } = require('sequelize');
 const { Voucher } = require('../models');
-
 
 exports.createVoucher = async (req, res) => {
   const { code, discount, discount_type, expiration_date } = req.body;
@@ -17,6 +17,7 @@ exports.createVoucher = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 exports.getAllVouchers = async (req, res) => {
   try {
     const vouchers = await Voucher.findAll();
@@ -42,9 +43,9 @@ exports.getVoucherById = async (req, res) => {
 };
 
 exports.updateVoucher = async (req, res) => {
-  const { voucher_id, code, discount, expiration_date } = req.body;
-
   try {
+    const { voucher_id } = req.params;
+    const { code, discount, discount_type, expiration_date } = req.body;
     const voucher = await Voucher.findByPk(voucher_id);
     if (!voucher) {
       return res.status(404).json({ message: 'Voucher not found' });
@@ -52,7 +53,9 @@ exports.updateVoucher = async (req, res) => {
 
     voucher.code = code;
     voucher.discount = discount;
+    voucher.discount_type = discount_type;
     voucher.expiration_date = expiration_date;
+
     await voucher.save();
 
     res.status(200).json(voucher);
@@ -80,15 +83,16 @@ exports.deleteVoucher = async (req, res) => {
 
 exports.applyVoucher = async (req, res) => {
   const { code } = req.body;
-  const user_id = req.user.id;
 
   try {
-    const voucher = await Voucher.findOne({ where: { code, expiration_date: { [Op.gt]: new Date() } } });
+    const voucher = await Voucher.findOne({
+      where: { code, expiration_date: { [Op.gt]: new Date() } }
+    });
     if (!voucher) {
       return res.status(404).json({ message: 'Voucher not found or expired' });
     }
 
-    // Logic áp dụng voucher vào đơn hàng hoặc giỏ hàng của người dùng
+    // Logic to apply the voucher to the user's order or cart
     // ...
 
     res.status(200).json({ message: 'Voucher applied successfully', discount: voucher.discount });

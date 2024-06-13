@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     resetPasswordToken: DataTypes.STRING,
     resetPasswordExpires: DataTypes.DATE,
     status: DataTypes.INTEGER,
-    avatar_url: DataTypes.STRING,
+    avatar_url: DataTypes.JSON,
     date_create: DataTypes.DATE,
     address: DataTypes.STRING,
     phone: {

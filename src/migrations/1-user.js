@@ -19,7 +19,7 @@ module.exports = {
       },
       role: Sequelize.STRING,
       status: Sequelize.INTEGER,
-      avatar_url: Sequelize.STRING,
+      avatar_url: Sequelize.JSON,
       date_create: Sequelize.DATE,
       address: Sequelize.STRING,
       phone: {
@@ -31,13 +31,24 @@ module.exports = {
           }
         }
       },
-      gender: Sequelize.INTEGER,
+      gender: {
+        type: Sequelize.ENUM('male', 'female', 'other'),
+        allowNull: true
+      },
       full_name: Sequelize.STRING,
       birthday: Sequelize.DATE,
       coin: Sequelize.INTEGER,
       email_verify_token: Sequelize.STRING,
       verify: Sequelize.INTEGER,
       forgot_password_token: Sequelize.STRING,
+      resetPasswordToken: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      resetPasswordExpires: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
