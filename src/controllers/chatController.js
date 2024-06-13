@@ -8,10 +8,18 @@ exports.initializeSocket = (socketIo) => {
 
 exports.createMessage = async (req, res) => {
   const { message, recipient_id } = req.body;
- // const sender_id = req.user.user_id; // Đảm bảo lấy đúng user_id từ req.user
- const user_id = req.user.id;
+  const user_id = req.user.id;
 
   try {
+    // Kiểm tra xem user_id và recipient_id có tồn tại trong bảng users không
+    const sender = await User.findByPk(user_id);
+    const recipient = await User.findByPk(recipient_id);
+
+    if (!sender || !recipient) {
+      return res.status(404).json({ message: 'User or recipient not found' });
+    }
+
+    // Tạo bản ghi tin nhắn mới
     const chat = await Chat.create({
       user_id,
       recipient_id,
@@ -23,6 +31,7 @@ exports.createMessage = async (req, res) => {
 
     res.status(201).json(chat);
   } catch (error) {
+    console.error(`Error creating message: ${error.message}`);
     res.status(400).json({ message: error.message });
   }
 };
@@ -51,6 +60,7 @@ exports.getMessages = async (req, res) => {
 
     res.status(200).json(chats);
   } catch (error) {
+    console.error(`Error fetching messages: ${error.message}`);
     res.status(400).json({ message: error.message });
   }
 };

@@ -54,7 +54,7 @@ exports.getReviewById = async (req, res) => {
 exports.updateReview = async (req, res) => {
   const { review_id } = req.params;
   const { rating, comment } = req.body;
-  const user_id = req.user.user_id;
+  const user_id = req.user?.id;
 
   // console.log(`Yêu cầu cập nhật đánh giá với review_id: ${review_id}, bởi user_id: ${user_id}`);
 
