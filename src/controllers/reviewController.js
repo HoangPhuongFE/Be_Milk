@@ -56,15 +56,17 @@ exports.updateReview = async (req, res) => {
   const { rating, comment } = req.body;
   const user_id = req.user.user_id;
 
+  console.log(`Yêu cầu cập nhật đánh giá với review_id: ${review_id}, bởi user_id: ${user_id}`);
+
   try {
     const review = await Review.findByPk(review_id);
 
     if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
+      return res.status(404).json({ message: 'Không tìm thấy đánh giá' });
     }
 
     if (review.user_id !== user_id && req.user.role !== 'admin' && req.user.role !== 'staff') {
-      return res.status(403).json({ message: 'You are not allowed to edit this review.' });
+      return res.status(403).json({ message: 'Bạn không được phép chỉnh sửa đánh giá này.' });
     }
 
     review.rating = rating;
@@ -72,12 +74,13 @@ exports.updateReview = async (req, res) => {
 
     await review.save();
 
+    console.log(`Đánh giá đã được cập nhật thành công: ${JSON.stringify(review)}`);
     res.status(200).json(review);
   } catch (error) {
+    console.error(`Lỗi khi cập nhật đánh giá: ${error.message}`);
     res.status(400).json({ message: error.message });
   }
 };
-
 exports.deleteReview = async (req, res) => {
   const { review_id } = req.params;
   const user_id = req.user.user_id;

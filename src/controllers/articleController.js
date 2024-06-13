@@ -23,15 +23,8 @@ exports.createArticle = async (req, res) => {
 
 exports.getArticles = async (req, res) => {
   try {
-    const articles = await Article.findAll({ include: 'images' });
-    const articlesWithPublicUrls = articles.map(article => ({
-      ...article.toJSON(),
-      images: article.images.map(image => ({
-        ...image.toJSON(),
-        url: `${req.protocol}://${req.get('host')}/${image.url}`
-      }))
-    }));
-    res.status(200).json(articlesWithPublicUrls);
+    const articles = await Article.findAll();
+    res.status(200).json(articles);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -41,25 +34,17 @@ exports.getArticleById = async (req, res) => {
   const { article_id } = req.params;
 
   try {
-    const article = await Article.findByPk(article_id, { include: 'images' });
-
+    const article = await Article.findByPk(article_id);
     if (!article) {
       return res.status(404).json({ message: 'Article not found' });
     }
 
-    const articleWithPublicUrls = {
-      ...article.toJSON(),
-      images: article.images.map(image => ({
-        ...image.toJSON(),
-        url: `${req.protocol}://${req.get('host')}/${image.url}`
-      }))
-    };
-
-    res.status(200).json(articleWithPublicUrls);
+    res.status(200).json(article);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 exports.updateArticle = async (req, res) => {
   try{
