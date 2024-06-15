@@ -9,9 +9,10 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const cors = require('cors');
+
 chatController.initializeSocket(io);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors())
