@@ -42,16 +42,17 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Kiểm tra email
+    // Check if email exists
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ message: 'Email is not found' });
 
-    // Kiểm tra mật khẩu
+    // Check password
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) return res.status(400).json({ message: 'Invalid password' });
 
-    // Tạo và gán JWT
+    // Create and assign JWT
     const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('Generated Token:', token); // Debug statement
     res.header('Authorization', 'Bearer ' + token).json({ token });
   } catch (err) {
     res.status(400).json({ message: err.message });

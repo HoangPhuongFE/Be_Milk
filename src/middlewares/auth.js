@@ -1,22 +1,27 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware để xác thực JWT
+
+// Middleware to authenticate JWT
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header('Authorization');
+  console.log('Authorization Header:', authHeader); // Debug statement
+
   if (!authHeader) {
     return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
   }
 
   const token = authHeader.replace('Bearer ', '');
+  console.log('Extracted Token:', token); // Debug statement
+
   if (!token) {
     return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
   }
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
-  
-    req.user=verified
-   
+    console.log('Verified Token:', verified); // Debug statement
+
+    req.user = verified;
     next();
   } catch (err) {
     console.log('Invalid token:', err); // Debug statement
