@@ -1,6 +1,5 @@
-const { Order, OrderItem, Cart, CartItem, Product , Voucher } = require('../models');
+const { Order, OrderItem, Cart, CartItem, Product, Voucher } = require('../models');
 const { Op } = require('sequelize');
-
 
 exports.createOrder = async (req, res) => {
   const { voucher_code } = req.body;
@@ -56,6 +55,15 @@ exports.createOrder = async (req, res) => {
     }));
 
     await OrderItem.bulkCreate(orderItems);
+
+    // Giảm số lượng sản phẩm trong kho
+    for (let item of cart.items) {
+      await Product.update(
+        { quantity: item.product.quantity - item.quantity },
+        { where: { product_id: item.product_id } }
+      );
+    }
+
     await CartItem.destroy({ where: { cart_id: cart.cart_id } });
 
     res.status(201).json(order);
@@ -63,6 +71,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
 
@@ -120,9 +129,19 @@ exports.deleteOrder = async (req, res) => {
   const { order_id } = req.params;
 
   try {
-    const order = await Order.findByPk(order_id);
+    const order = await Order.findByPk(order_id, {
+      include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
+    });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Cộng lại số lượng sản phẩm vào kho
+    for (let item of order.items) {
+      await Product.update(
+        { quantity: item.product.quantity + item.quantity },
+        { where: { product_id: item.product_id } }
+      );
     }
 
     await order.destroy();
