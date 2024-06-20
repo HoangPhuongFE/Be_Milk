@@ -1,3 +1,4 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
@@ -10,19 +11,10 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 
 // Lấy thông tin người dùng
-router.get('/profile', authenticateToken, userController.getUser);
-
-// Lấy tất cả người dùng (Chỉ dành cho Admin)
-router.get('/all', authenticateToken, authorizeRole(['admin']), userController.getAllUsers);
+router.get('/profile', authenticateToken, authorizeRole(['user', 'admin', 'staff']), userController.getUser);
 
 // Cập nhật thông tin người dùng
-router.put('/profile', authenticateToken, userController.updateUser);
-
-// Phân quyền người dùng (Chỉ dành cho Admin)
-router.post('/assign-role', authenticateToken, authorizeRole(['admin']), userController.assignRole);
-
-// Xóa người dùng (Chỉ dành cho Admin)
-router.delete('/profile/:id', authenticateToken, authorizeRole(['admin']), userController.deleteUser);
+router.put('/profile', authenticateToken, authorizeRole(['user', 'admin', 'staff']), userController.updateUser);
 
 // Quên mật khẩu
 router.post('/forgot-password', userController.forgotPassword);
