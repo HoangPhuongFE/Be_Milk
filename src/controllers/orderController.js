@@ -6,6 +6,7 @@ exports.createOrder = async (req, res) => {
   const user_id = req.user.id;
 
   try {
+    // cart lấy từ user_id
     const cart = await Cart.findOne({
       where: { user_id },
       include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
@@ -20,7 +21,7 @@ exports.createOrder = async (req, res) => {
     let discount_type = null;
 
     const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0);
-
+    // tìm voucher nếu có thì kiểm tra điều kiện
     if (voucher_code) {
       const voucher = await Voucher.findOne({
         where: { code: voucher_code, expiration_date: { [Op.gt]: new Date() }, used: false }
@@ -28,7 +29,7 @@ exports.createOrder = async (req, res) => {
       if (!voucher) {
         return res.status(404).json({ message: 'Voucher not found or expired' });
       }
-
+      // kiểm giá trị đơn hàng tối thiểu
       if (cart_total < voucher.minimum_order_value) {
         return res.status(400).json({ message: `Order total must be at least ${voucher.minimum_order_value} to use this voucher` });
       }
@@ -37,7 +38,7 @@ exports.createOrder = async (req, res) => {
       voucher_id = voucher.voucher_id;
       discount_type = voucher.discount_type;
     }
-
+    // tính tổng tiền sau khi giảm giá nếu có voucher 
     let total_amount = cart_total;
 
     if (discount_type === 'percentage') {
@@ -54,7 +55,7 @@ exports.createOrder = async (req, res) => {
       total_amount,
       voucher_id
     });
-
+     // tạo order item từ cart item 
     const orderItems = cart.items.map(item => ({
       order_id: order.order_id,
       product_id: item.product_id,
@@ -71,7 +72,7 @@ exports.createOrder = async (req, res) => {
         { where: { product_id: item.product_id } }
       );
     }
-
+    // nếu có voucher thì cập nhật trạng thái voucher đã sử dụng 
     if (voucher_id) {
       await Voucher.update(
         { used: true },
@@ -87,7 +88,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-
+// tạo order từ cart
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
 
@@ -102,7 +103,7 @@ exports.getUserOrders = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
+// lấy order theo id
 exports.getOrderById = async (req, res) => {
   const user_id = req.user.id;
   const { order_id } = req.params;
@@ -122,7 +123,7 @@ exports.getOrderById = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
+// cập nhật trạng thái order 
 exports.updateOrderStatus = async (req, res) => {
   const { order_id, status } = req.body;
 
@@ -140,7 +141,7 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
+// xóa order 
 exports.deleteOrder = async (req, res) => {
   const { order_id } = req.params;
 
