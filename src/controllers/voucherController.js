@@ -2,14 +2,15 @@ const { Op } = require('sequelize');
 const { Voucher } = require('../models');
 
 exports.createVoucher = async (req, res) => {
-  const { code, discount, discount_type, expiration_date } = req.body;
+  const { code, discount, discount_type, expiration_date, minimum_order_value } = req.body;
 
   try {
     const voucher = await Voucher.create({
       code,
       discount,
       discount_type,
-      expiration_date
+      expiration_date,
+      minimum_order_value
     });
 
     res.status(201).json(voucher);
@@ -17,6 +18,7 @@ exports.createVoucher = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 exports.getAllVouchers = async (req, res) => {
   try {
@@ -45,7 +47,7 @@ exports.getVoucherById = async (req, res) => {
 exports.updateVoucher = async (req, res) => {
   try {
     const { voucher_id } = req.params;
-    const { code, discount, discount_type, expiration_date } = req.body;
+    const { code, discount, discount_type, expiration_date, minimum_order_value } = req.body;
     const voucher = await Voucher.findByPk(voucher_id);
     if (!voucher) {
       return res.status(404).json({ message: 'Voucher not found' });
@@ -55,6 +57,7 @@ exports.updateVoucher = async (req, res) => {
     voucher.discount = discount;
     voucher.discount_type = discount_type;
     voucher.expiration_date = expiration_date;
+    voucher.minimum_order_value = minimum_order_value;
 
     await voucher.save();
 
@@ -63,6 +66,7 @@ exports.updateVoucher = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.deleteVoucher = async (req, res) => {
   const { voucher_id } = req.params;

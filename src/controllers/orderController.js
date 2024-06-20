@@ -19,17 +19,25 @@ exports.createOrder = async (req, res) => {
     let voucher_id = null;
     let discount_type = null;
 
+    const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0);
+
     if (voucher_code) {
-      const voucher = await Voucher.findOne({ where: { code: voucher_code, expiration_date: { [Op.gt]: new Date() } } });
+      const voucher = await Voucher.findOne({
+        where: { code: voucher_code, expiration_date: { [Op.gt]: new Date() }, used: false }
+      });
       if (!voucher) {
         return res.status(404).json({ message: 'Voucher not found or expired' });
       }
+
+      if (cart_total < voucher.minimum_order_value) {
+        return res.status(400).json({ message: `Order total must be at least ${voucher.minimum_order_value} to use this voucher` });
+      }
+
       discount = voucher.discount;
       voucher_id = voucher.voucher_id;
       discount_type = voucher.discount_type;
     }
 
-    const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0);
     let total_amount = cart_total;
 
     if (discount_type === 'percentage') {
@@ -64,6 +72,13 @@ exports.createOrder = async (req, res) => {
       );
     }
 
+    if (voucher_id) {
+      await Voucher.update(
+        { used: true },
+        { where: { voucher_id } }
+      );
+    }
+
     await CartItem.destroy({ where: { cart_id: cart.cart_id } });
 
     res.status(201).json(order);
@@ -71,6 +86,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
