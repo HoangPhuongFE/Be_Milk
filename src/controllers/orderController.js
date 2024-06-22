@@ -1,4 +1,4 @@
-const { Order, OrderItem, Cart, CartItem, Product, Voucher } = require('../models');
+const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createOrder = async (req, res) => {
@@ -6,7 +6,6 @@ exports.createOrder = async (req, res) => {
   const user_id = req.user.id;
 
   try {
-    // cart lấy từ user_id
     const cart = await Cart.findOne({
       where: { user_id },
       include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
@@ -21,15 +20,23 @@ exports.createOrder = async (req, res) => {
     let discount_type = null;
 
     const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0);
-    // tìm voucher nếu có thì kiểm tra điều kiện
+
     if (voucher_code) {
       const voucher = await Voucher.findOne({
-        where: { code: voucher_code, expiration_date: { [Op.gt]: new Date() }, used: false }
+        where: { code: voucher_code, expiration_date: { [Op.gt]: new Date() } }
       });
       if (!voucher) {
         return res.status(404).json({ message: 'Voucher not found or expired' });
       }
-      // kiểm giá trị đơn hàng tối thiểu
+
+      const userVoucher = await UserVoucher.findOne({
+        where: { user_id: user_id, voucher_id: voucher.voucher_id, used: true }
+      });
+
+      if (userVoucher) {
+        return res.status(400).json({ message: 'You have already used this voucher' });
+      }
+
       if (cart_total < voucher.minimum_order_value) {
         return res.status(400).json({ message: `Order total must be at least ${voucher.minimum_order_value} to use this voucher` });
       }
@@ -38,7 +45,7 @@ exports.createOrder = async (req, res) => {
       voucher_id = voucher.voucher_id;
       discount_type = voucher.discount_type;
     }
-    // tính tổng tiền sau khi giảm giá nếu có voucher 
+
     let total_amount = cart_total;
 
     if (discount_type === 'percentage') {
@@ -47,7 +54,7 @@ exports.createOrder = async (req, res) => {
       total_amount = cart_total - discount;
     }
 
-    if (total_amount < 0) total_amount = 0; // Đảm bảo tổng tiền không âm
+    if (total_amount < 0) total_amount = 0;
 
     const order = await Order.create({
       user_id,
@@ -55,7 +62,7 @@ exports.createOrder = async (req, res) => {
       total_amount,
       voucher_id
     });
-     // tạo order item từ cart item 
+
     const orderItems = cart.items.map(item => ({
       order_id: order.order_id,
       product_id: item.product_id,
@@ -65,19 +72,19 @@ exports.createOrder = async (req, res) => {
 
     await OrderItem.bulkCreate(orderItems);
 
-    // Giảm số lượng sản phẩm trong kho
     for (let item of cart.items) {
       await Product.update(
         { quantity: item.product.quantity - item.quantity },
         { where: { product_id: item.product_id } }
       );
     }
-    // nếu có voucher thì cập nhật trạng thái voucher đã sử dụng 
+
     if (voucher_id) {
-      await Voucher.update(
-        { used: true },
-        { where: { voucher_id } }
-      );
+      await UserVoucher.create({
+        user_id: user_id,
+        voucher_id: voucher_id,
+        used: true
+      });
     }
 
     await CartItem.destroy({ where: { cart_id: cart.cart_id } });
@@ -87,6 +94,10 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+
+
+
 
 // tạo order từ cart
 exports.getUserOrders = async (req, res) => {
