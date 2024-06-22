@@ -144,6 +144,10 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    if (status === 'cancelled') {
+      await UserVoucher.destroy({ where: { user_id: order.user_id, used: true } });
+    }
+
     order.status = status;
     await order.save();
 
@@ -152,6 +156,7 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 // xóa order 
 exports.deleteOrder = async (req, res) => {
   const { order_id } = req.params;
@@ -172,11 +177,12 @@ exports.deleteOrder = async (req, res) => {
       );
     }
 
+    await UserVoucher.destroy({ where: { user_id: order.user_id, used: true } });
+
     await order.destroy();
 
     res.status(204).json({ message: 'Order deleted successfully' });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: 'xoá thành công' });
   }
 };
-//
