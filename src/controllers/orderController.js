@@ -1,3 +1,4 @@
+// controllers/orderController.js
 const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = require('../models');
 const { Op } = require('sequelize');
 
@@ -95,11 +96,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-
-
-
-
-// tạo order từ cart
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
 
@@ -114,7 +110,7 @@ exports.getUserOrders = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-// lấy order theo id
+
 exports.getOrderById = async (req, res) => {
   const user_id = req.user.id;
   const { order_id } = req.params;
@@ -134,7 +130,7 @@ exports.getOrderById = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-// cập nhật trạng thái order 
+
 exports.updateOrderStatus = async (req, res) => {
   const { order_id, status } = req.body;
 
@@ -157,7 +153,6 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// xóa order 
 exports.deleteOrder = async (req, res) => {
   const { order_id } = req.params;
 
@@ -169,7 +164,6 @@ exports.deleteOrder = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Cộng lại số lượng sản phẩm vào kho
     for (let item of order.items) {
       await Product.update(
         { quantity: item.product.quantity + item.quantity },
@@ -183,6 +177,6 @@ exports.deleteOrder = async (req, res) => {
 
     res.status(204).json({ message: 'Order deleted successfully' });
   } catch (err) {
-    res.status(400).json({ message: 'xoá thành công' });
+    res.status(400).json({ message: 'Delete failed' });
   }
 };
