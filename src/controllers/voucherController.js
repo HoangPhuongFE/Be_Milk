@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Voucher } = require('../models');
+const { Voucher , UserVoucher, User} = require('../models');
 
 exports.createVoucher = async (req, res) => {
   const { code, discount, discount_type, expiration_date, minimum_order_value } = req.body;
