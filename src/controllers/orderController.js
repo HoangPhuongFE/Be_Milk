@@ -20,7 +20,7 @@ exports.createOrder = async (req, res) => {
     let voucher_id = null;
     let discount_type = null;
 
-    const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0);
+    const cart_total = cart.items.reduce((total, item) => total + (item.quantity * item.product.price), 0).toFixed(2);
 
     if (voucher_code) {
       const voucher = await Voucher.findOne({
@@ -38,29 +38,31 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ message: 'You have already used this voucher' });
       }
 
-      if (cart_total < voucher.minimum_order_value) {
+      if (parseFloat(cart_total) < parseFloat(voucher.minimum_order_value)) {
         return res.status(400).json({ message: `Order total must be at least ${voucher.minimum_order_value} to use this voucher` });
       }
 
-      discount = voucher.discount;
+      discount = parseFloat(voucher.discount);
       voucher_id = voucher.voucher_id;
       discount_type = voucher.discount_type;
     }
 
-    let total_amount = cart_total;
+    let total_amount = parseFloat(cart_total);
 
     if (discount_type === 'percentage') {
-      total_amount = cart_total * ((100 - discount) / 100);
+      total_amount = total_amount * ((100 - discount) / 100);
     } else if (discount_type === 'amount') {
-      total_amount = cart_total - discount;
+      total_amount = total_amount - discount;
     }
+
+    total_amount = total_amount.toFixed(2);
 
     if (total_amount < 0) total_amount = 0;
 
     const order = await Order.create({
       user_id,
       status: 'pending',
-      total_amount,
+      total_amount: total_amount,
       voucher_id
     });
 
@@ -95,6 +97,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
@@ -131,17 +134,64 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
+
+
 exports.updateOrderStatus = async (req, res) => {
   const { order_id, status } = req.body;
 
   try {
-    const order = await Order.findByPk(order_id);
+    const order = await Order.findByPk(order_id, {
+      include: [{
+        model: OrderItem,
+        as: 'items'
+      }]
+    });
+    
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
     if (status === 'cancelled') {
+      // Xoá voucher đã sử dụng
       await UserVoucher.destroy({ where: { user_id: order.user_id, used: true } });
+      
+      // Trả lại sản phẩm vào giỏ hàng
+      const cart = await Cart.findOne({ where: { user_id: order.user_id } });
+      if (!cart) {
+        // Nếu giỏ hàng chưa tồn tại, tạo mới giỏ hàng
+        cart = await Cart.create({ user_id: order.user_id });
+      }
+
+      for (const item of order.items) {
+        // Tìm kiếm CartItem trong giỏ hàng hiện tại
+        let cartItem = await CartItem.findOne({ 
+          where: { 
+            cart_id: cart.cart_id, 
+            product_id: item.product_id 
+          } 
+        });
+
+        if (cartItem) {
+          // Nếu CartItem đã tồn tại, tăng số lượng
+          cartItem.quantity += item.quantity;
+        } else {
+          // Nếu CartItem chưa tồn tại, tạo mới CartItem
+          cartItem = await CartItem.create({ 
+            cart_id: cart.cart_id, 
+            product_id: item.product_id, 
+            quantity: item.quantity 
+          });
+        }
+
+        await cartItem.save();
+
+        // Tăng lại số lượng sản phẩm trong kho
+        const product = await Product.findByPk(item.product_id);
+        if (product) {
+          product.quantity += item.quantity;
+          await product.save();
+        }
+      }
     }
 
     order.status = status;
