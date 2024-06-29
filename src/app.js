@@ -4,18 +4,19 @@ const http = require('http');
 const socketIo = require('socket.io');
 const { sequelize } = require('./models');
 const chatController = require('./controllers/chatController');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const cors = require('cors');
 
 chatController.initializeSocket(io);
 
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cors());
+
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const staffRoutes = require('./routes/staffRoutes');
@@ -27,9 +28,8 @@ const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const articleRoutes = require('./routes/articleRoutes');
-const chatRoutes = require('./routes/chatRoutes'); 
-
-
+const chatRoutes = require('./routes/chatRoutes');
+const paymentRoutes = require('./routes/paymentRoutes'); // Thêm dòng này
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
@@ -42,9 +42,8 @@ app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
-app.use('/api/chats', chatRoutes); 
-
-
+app.use('/api/chats', chatRoutes);
+app.use('/api/payments', paymentRoutes); // Thêm dòng này
 
 // Socket.IO configuration
 io.on('connection', (socket) => {
