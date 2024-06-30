@@ -28,14 +28,11 @@ const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const articleRoutes = require('./routes/articleRoutes');
-<<<<<<< HEAD
 const chatRoutes = require('./routes/chatRoutes');
-const paymentRoutes = require('./routes/paymentRoutes'); // Thêm dòng này
-=======
-const chatRoutes = require('./routes/chatRoutes'); 
-const paymentRoutes = require('./routes/paymentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes'); 
 
->>>>>>> 50b3931a78e4d92c2c0d3e093c1754bfbcd61e06
+
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
@@ -48,14 +45,8 @@ app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
-<<<<<<< HEAD
 app.use('/api/chats', chatRoutes);
-app.use('/api/payments', paymentRoutes); // Thêm dòng này
-=======
-app.use('/api/chats', chatRoutes); 
-app.use('/api/payment', paymentRoutes);
-
->>>>>>> 50b3931a78e4d92c2c0d3e093c1754bfbcd61e06
+app.use('/api/payments', paymentRoutes);
 
 // Socket.IO configuration
 io.on('connection', (socket) => {
