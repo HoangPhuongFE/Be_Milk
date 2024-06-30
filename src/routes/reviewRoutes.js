@@ -7,7 +7,7 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 router.post('/', authenticateToken, reviewController.createReview);
 
 // Get all reviews for a specific product
-router.get('/:product_id', reviewController.getReviews);
+router.get('/all', reviewController.getReviews);
 
 // Get a single review by ID
 router.get('/:review_id', reviewController.getReviewById);
