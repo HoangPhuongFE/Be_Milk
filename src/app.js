@@ -6,7 +6,6 @@ const { sequelize } = require('./models');
 const chatController = require('./controllers/chatController');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const basicAuth = require('express-basic-auth');
 const swaggerDocs = require('./config/swagger');
 
 const app = express();
@@ -32,12 +31,12 @@ const voucherRoutes = require('./routes/voucherRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-const paymentRoutes = require('./routes/paymentRoutes'); 
+const paymentRoutes = require('./routes/paymentRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/staff', staffRoutes);
-app.use('/api/products', userRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
@@ -48,8 +47,23 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// Basic auth middleware for Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// Hardcoded basic authentication for Swagger UI
+app.use('/api-docs', (req, res, next) => {
+  const auth = { login: 'admin', password: '1234' };
+
+  // Parse login and password from headers
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+  // Verify login and password are set and correct
+  if (login && password && login === auth.login && password === auth.password) {
+    return next();
+  }
+
+  // Access denied
+  res.set('WWW-Authenticate', 'Basic realm="401"');
+  res.status(401).send('Authentication required.');
+}, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Route cho URL gốc
 app.get('/', (req, res) => {
