@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-const { Order, OrderItem, Cart, CartItem, Product, Voucher } = require('../models');
+
 const { createPaymentUrl } = require('./paymentController');
-=======
-// controllers/orderController.js
 const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = require('../models');
->>>>>>> 50b3931a78e4d92c2c0d3e093c1754bfbcd61e06
+
 const { Op } = require('sequelize');
 
 
@@ -112,10 +109,7 @@ exports.createOrder = async (req, res) => {
 };
 
 
-<<<<<<< HEAD
-// tạo order từ cart
-=======
->>>>>>> 50b3931a78e4d92c2c0d3e093c1754bfbcd61e06
+
 exports.getUserOrders = async (req, res) => {
   const user_id = req.user.id;
 
