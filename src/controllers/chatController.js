@@ -62,12 +62,12 @@ exports.getMessagers = async (req, res) => {
         {
           model: User,
           as: 'user1',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         },
         {
           model: User,
           as: 'user2',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         }
       ]
     });
@@ -94,12 +94,12 @@ exports.getUserMessagers = async (req, res) => {
         {
           model: User,
           as: 'user1',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         },
         {
           model: User,
           as: 'user2',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         }
       ]
     });
@@ -121,12 +121,12 @@ exports.getChatsByMessagerId = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name', 'avatar_url']
         },
         {
           model: User,
           as: 'recipient',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name', 'avatar_url']
         }
       ],
       order: [['createdAt', 'ASC']]
@@ -165,12 +165,12 @@ exports.getUserChatsByMessagerId = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         },
         {
           model: User,
           as: 'recipient',
-          attributes: ['user_id', 'email', 'full_name']
+          attributes: ['user_id', 'email', 'full_name','avatar_url']
         }
       ],
       order: [['createdAt', 'ASC']]
