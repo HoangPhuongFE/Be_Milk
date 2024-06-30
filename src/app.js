@@ -5,7 +5,9 @@ const socketIo = require('socket.io');
 const { sequelize } = require('./models');
 const chatController = require('./controllers/chatController');
 const cors = require('cors');
+const path = require('path'); 
 const swaggerUi = require('swagger-ui-express');
+const basicAuth = require('express-basic-auth');
 const swaggerDocs = require('./config/swagger');
 
 const app = express();
@@ -18,6 +20,9 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors());
+
+// Phục vụ các tệp tĩnh từ thư mục public
+app.use(express.static(path.join(__dirname, '..', 'public'))); // Đảm bảo đường dẫn đúng
 
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
