@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load biến môi trường từ .env
+require('dotenv').config();
 
 module.exports = {
   development: {

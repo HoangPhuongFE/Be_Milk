@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 const crypto = require('crypto');
 const querystring = require('qs');
 const moment = require('moment');
@@ -110,7 +110,6 @@ exports.vnpayReturn = async (req, res) => {
 };
 
 module.exports.createPaymentUrl = createPaymentUrl;
-=======
 const paypal = require('../config/paypalConfig');
 const { Order, OrderItem, Product } = require('../models');
 
@@ -322,4 +321,4 @@ exports.cancelPayment = async (req, res) => {
     return res.status(500).send('Internal server error');
   }
 };
->>>>>>> 50b3931a78e4d92c2c0d3e093c1754bfbcd61e06
+

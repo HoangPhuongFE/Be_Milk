@@ -31,9 +31,6 @@ const articleRoutes = require('./routes/articleRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes'); 
 
-
-
-
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/staff', staffRoutes);
@@ -70,3 +67,5 @@ server.listen(port, async () => {
   }
   console.log(`Server is running on port ${port}`);
 });
+
+module.exports = app;
