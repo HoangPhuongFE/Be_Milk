@@ -37,7 +37,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/staff', staffRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/products', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
@@ -50,7 +50,7 @@ app.use('/api/payments', paymentRoutes);
 
 // Basic auth middleware for Swagger UI
 app.use('/api-docs', basicAuth({
-  users: { 'admin': '1234' }, // Đặt tên người dùng và mật khẩu cho xác thực cơ bản
+  users: { 'admin': '1234' },
   challenge: true
 }), swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

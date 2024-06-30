@@ -1,9 +1,6 @@
-
-const { createPaymentUrl } = require('./paymentController');
+// controllers/orderController.js
 const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = require('../models');
-
 const { Op } = require('sequelize');
-
 
 exports.createOrder = async (req, res) => {
   const { voucher_code } = req.body;
@@ -95,19 +92,11 @@ exports.createOrder = async (req, res) => {
 
     await CartItem.destroy({ where: { cart_id: cart.cart_id } });
 
-     // Tạo URL thanh toán và trả về cho client
-     const ipAddr = req.headers['x-forwarded-for'] ||
-     req.connection.remoteAddress ||
-     req.socket.remoteAddress ||
-     (req.connection.socket ? req.connection.socket.remoteAddress : null);
-
- const paymentUrl = await createPaymentUrl(order.order_id, total_amount, ipAddr);
-    res.status(201).json({ order, paymentUrl });
+    res.status(201).json(order);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
-
 
 
 exports.getUserOrders = async (req, res) => {
