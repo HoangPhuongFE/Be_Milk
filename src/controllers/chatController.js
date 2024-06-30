@@ -45,10 +45,17 @@ exports.createMessage = async (req, res) => {
       message
     });
 
-    // Phát tin nhắn tới tất cả các client
-    io.emit('chat message', chat);
+    // Bao gồm thông tin đầy đủ của người gửi và người nhận
+    const fullMessage = {
+      ...chat.get(),
+      user: sender,
+      recipient: recipient
+    };
 
-    res.status(201).json(chat);
+    // Phát tin nhắn tới tất cả các client
+    io.emit('chat message', fullMessage);
+
+    res.status(201).json(fullMessage);
   } catch (error) {
     console.error(`Error creating message: ${error.message}`);
     res.status(400).json({ message: error.message });
