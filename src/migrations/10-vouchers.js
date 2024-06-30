@@ -2,6 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    // Tạo bảng Vouchers
     await queryInterface.createTable('Vouchers', {
       voucher_id: {
         type: Sequelize.INTEGER,
@@ -35,12 +36,17 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW
+      },
+      minimum_order_value: { 
+        type: Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
       }
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Drop the Vouchers table
+    // Xóa bảng Vouchers
     await queryInterface.dropTable('Vouchers');
   }
 };

@@ -1,13 +1,13 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Chats', {
-      chat_id: {
+    await queryInterface.createTable('Messagers', {
+      messager_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id: {
+      user1_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -15,26 +15,13 @@ module.exports = {
           key: 'user_id'
         }
       },
-      recipient_id: {
+      user2_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',
           key: 'user_id'
         }
-      },
-      messager_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Messagers',
-          key: 'messager_id'
-        },
-        onDelete: 'CASCADE'
-      },
-      message: {
-        type: Sequelize.TEXT,
-        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -50,6 +37,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Chats');
+    await queryInterface.dropTable('Messagers');
   }
 };

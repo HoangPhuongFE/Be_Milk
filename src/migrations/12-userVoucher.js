@@ -1,8 +1,7 @@
-'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Chats', {
-      chat_id: {
+    await queryInterface.createTable('UserVouchers', {
+      user_voucher_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -13,43 +12,36 @@ module.exports = {
         references: {
           model: 'Users',
           key: 'user_id'
-        }
-      },
-      recipient_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'user_id'
-        }
-      },
-      messager_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Messagers',
-          key: 'messager_id'
         },
         onDelete: 'CASCADE'
       },
-      message: {
-        type: Sequelize.TEXT,
-        allowNull: false
+      voucher_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Vouchers',
+          key: 'voucher_id'
+        },
+        onDelete: 'CASCADE'
+      },
+      used: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW')
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW')
       }
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Chats');
+    await queryInterface.dropTable('UserVouchers');
   }
 };

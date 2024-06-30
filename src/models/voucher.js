@@ -14,18 +14,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false
     },
-    minimum_order_value:{
+    minimum_order_value: {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0
     },
-    used : {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
-    
-
     discount_type: {
       type: DataTypes.ENUM('percentage', 'amount'),
       allowNull: false,
@@ -36,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {});
+
+  Voucher.associate = (models) => {
+    Voucher.hasMany(models.UserVoucher, { foreignKey: 'voucher_id', as: 'userVouchers' });
+  };
 
   return Voucher;
 };
