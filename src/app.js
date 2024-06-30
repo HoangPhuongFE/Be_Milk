@@ -56,8 +56,9 @@ app.use('/api-docs', basicAuth({
 
 // Route cho URL gốc
 app.get('/', (req, res) => {
-  res.send('Welcome to the Be Milk API!');
+  res.send('Welcome to the Be Milk API! <a href="/api-docs">API Documentation</a>');
 });
+
 
 // Socket.IO configuration
 io.on('connection', (socket) => {
