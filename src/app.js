@@ -45,6 +45,11 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/payments', paymentRoutes);
 
+// Route cho URL gốc
+app.get('/', (req, res) => {
+  res.send('Welcome to the Be Milk API!');
+});
+
 // Socket.IO configuration
 io.on('connection', (socket) => {
   console.log('A user connected');
