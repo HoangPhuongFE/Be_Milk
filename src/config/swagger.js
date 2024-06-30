@@ -29,7 +29,7 @@ const swaggerOptions = {
       bearerAuth: []
     }]
   },
-  apis: ['./src/routes/*.js', './src/swagger-docs/*.js'] // Đường dẫn tới các file route và file ghi chú Swagger
+  apis: ['./src/routes/*.js', './src/swagger-docs/*.js']
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

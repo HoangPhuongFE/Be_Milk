@@ -59,7 +59,6 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Be Milk API! <a href="/api-docs">API Documentation</a>');
 });
 
-
 // Socket.IO configuration
 io.on('connection', (socket) => {
   console.log('A user connected');
