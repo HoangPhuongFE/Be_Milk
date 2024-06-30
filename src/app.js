@@ -5,6 +5,9 @@ const socketIo = require('socket.io');
 const { sequelize } = require('./models');
 const chatController = require('./controllers/chatController');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const basicAuth = require('express-basic-auth');
+const swaggerDocs = require('./config/swagger');
 
 const app = express();
 const server = http.createServer(app);
@@ -44,6 +47,12 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/payments', paymentRoutes);
+
+// Basic auth middleware for Swagger UI
+app.use('/api-docs', basicAuth({
+  users: { 'admin': '1234' }, // Đặt tên người dùng và mật khẩu cho xác thực cơ bản
+  challenge: true
+}), swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Route cho URL gốc
 app.get('/', (req, res) => {
