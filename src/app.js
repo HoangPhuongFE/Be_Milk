@@ -49,10 +49,7 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/payments', paymentRoutes);
 
 // Basic auth middleware for Swagger UI
-app.use('/api-docs', basicAuth({
-  users: { 'admin': '1234' },
-  challenge: true
-}), swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Route cho URL gốc
 app.get('/', (req, res) => {
