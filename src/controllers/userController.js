@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { Op } = require('sequelize'); 
 
 // Đăng ký người dùng
 exports.register = async (req, res) => {
@@ -198,12 +199,14 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
+
 // Đặt lại mật khẩu
 exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
+    // Tìm người dùng với token và thời gian hết hạn
     const user = await User.findOne({
       where: {
         resetPasswordToken: token,
@@ -214,24 +217,27 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+      return res.status(400).json({ message: 'Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn' });
     }
 
+    // Kiểm tra mật khẩu
     const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long and contain a special character' });
+      return res.status(400).json({ message: 'Mật khẩu phải dài ít nhất 8 ký tự và chứa ký tự đặc biệt' });
     }
 
+    // Mã hóa mật khẩu mới
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Cập nhật mật khẩu và xóa token đặt lại mật khẩu
     user.password = hashedPassword;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
 
     await user.save();
 
-    res.status(200).json({ message: 'Password has been reset successfully' });
+    res.status(200).json({ message: 'Mật khẩu đã được đặt lại thành công' });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
