@@ -5,38 +5,32 @@ const socketIo = require('socket.io');
 const { sequelize } = require('./models');
 const chatController = require('./controllers/chatController');
 const cors = require('cors');
-const path = require('path');
-const swaggerUi = require('swagger-ui-express');
-const basicAuth = require('express-basic-auth');
-const swaggerDocs = require('./config/swagger');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:5173', // Địa chỉ của frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  }
+});
 
 chatController.initializeSocket(io);
 
 const port = process.env.PORT || 5000;
 
+// Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Địa chỉ của frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
-// Phục vụ các tệp tĩnh từ thư mục public
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-// Endpoint để trả về tài liệu Swagger JSON
-app.get('/swagger.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerDocs);
-});
-
-// Định tuyến cho các tài liệu API
-app.use('/api-docs', basicAuth({
-  users: { 'admin': '1234' },
-  challenge: true
-}), swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-// Các định tuyến khác
+// Routes
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const staffRoutes = require('./routes/staffRoutes');
@@ -63,12 +57,7 @@ app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes);
-app.use('/api/payments', paymentRoutes);
-
-// Route cho URL gốc
-app.get('/', (req, res) => {
-  res.send('Welcome to the Be Milk API! <a href="/api-docs">API Documentation</a>');
-});
+app.use('/api/payment', paymentRoutes);
 
 // Socket.IO configuration
 io.on('connection', (socket) => {
@@ -92,5 +81,3 @@ server.listen(port, async () => {
   }
   console.log(`Server is running on port ${port}`);
 });
-
-module.exports = app;

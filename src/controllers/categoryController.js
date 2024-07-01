@@ -33,7 +33,7 @@ exports.getCategoryById = async (req, res) => {
   }
 };
 
-// Cập nhật danh mục
+// Cập nhật danh mục theo id
 exports.updateCategory = async (req, res) => {
   try {
     const [updated] = await Category.update(req.body, {
@@ -49,7 +49,7 @@ exports.updateCategory = async (req, res) => {
   }
 };
 
-// Xóa danh mục
+// Xóa danh mục 
 exports.deleteCategory = async (req, res) => {
   try {
     const deleted = await Category.destroy({

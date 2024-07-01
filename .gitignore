@@ -100,5 +100,3 @@ $RECYCLE.BIN/
 .env.development.local
 .env.test.local
 .env.production.local
-
-.vercel

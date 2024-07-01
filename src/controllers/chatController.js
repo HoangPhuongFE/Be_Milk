@@ -4,6 +4,23 @@ let io;
 
 exports.initializeSocket = (socketIo) => {
   io = socketIo;
+  io.on('connection', (socket) => {
+    console.log('A user connected');
+    
+    socket.on('join room', (roomId) => {
+      socket.join(roomId);
+      console.log(`User joined room: ${roomId}`);
+    });
+
+    socket.on('leave room', (roomId) => {
+      socket.leave(roomId);
+      console.log(`User left room: ${roomId}`);
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('User disconnected');
+    });
+  });
 };
 
 exports.createMessage = async (req, res) => {
@@ -11,7 +28,6 @@ exports.createMessage = async (req, res) => {
   const user_id = req.user.id;
 
   try {
-    // Kiểm tra xem user_id và recipient_id có tồn tại trong bảng users không
     const sender = await User.findByPk(user_id);
     const recipient = await User.findByPk(recipient_id);
 
@@ -19,7 +35,6 @@ exports.createMessage = async (req, res) => {
       return res.status(404).json({ message: 'User or recipient not found' });
     }
 
-    // Kiểm tra xem messager đã tồn tại chưa
     let messager = await Messager.findOne({
       where: {
         [Op.or]: [
@@ -29,7 +44,6 @@ exports.createMessage = async (req, res) => {
       }
     });
 
-    // Nếu chưa tồn tại thì tạo messager mới
     if (!messager) {
       messager = await Messager.create({
         user1_id: user_id,
@@ -37,7 +51,6 @@ exports.createMessage = async (req, res) => {
       });
     }
 
-    // Tạo bản ghi tin nhắn mới
     const chat = await Chat.create({
       user_id,
       recipient_id,
@@ -45,10 +58,15 @@ exports.createMessage = async (req, res) => {
       message
     });
 
-    // Phát tin nhắn tới tất cả các client
-    io.emit('chat message', chat);
+    const fullMessage = {
+      ...chat.get(),
+      user: sender,
+      recipient: recipient
+    };
 
-    res.status(201).json(chat);
+    io.to(messager.messager_id).emit('chat message', fullMessage);
+
+    res.status(201).json(fullMessage);
   } catch (error) {
     console.error(`Error creating message: ${error.message}`);
     res.status(400).json({ message: error.message });
