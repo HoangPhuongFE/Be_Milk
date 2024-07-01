@@ -3,11 +3,11 @@ const { Order, OrderItem, Product } = require('../models');
 
 exports.createPayment = async (req, res) => {
   const { order_id } = req.body;
-  console.log('Request Body:', req.body); // Log toàn bộ request body để kiểm tra
-  console.log('Order ID:', order_id); // In ra để kiểm tra
+  console.log('Request Body:', req.body); 
+  console.log('Order ID:', order_id); 
 
   if (!order_id) {
-    return res.status(400).send('Order ID is required');
+    return res.status(400).send('Order ID là bắt buộc');
   }
 
   try {
@@ -20,20 +20,19 @@ exports.createPayment = async (req, res) => {
     });
 
     if (!order) {
-      console.log('Order not found for ID:', order_id);
-      return res.status(404).send('Order not found');
+      console.log('Không tìm thấy đơn hàng với ID:', order_id);
+      return res.status(404).send('Không tìm thấy đơn hàng');
     }
 
     if (!order.items || order.items.length === 0) {
-      console.log('No items found for order ID:', order_id);
-      return res.status(404).send('No items found in the order');
+      console.log('Không tìm thấy sản phẩm trong đơn hàng với ID:', order_id);
+      return res.status(404).send('Không tìm thấy sản phẩm trong đơn hàng');
     }
 
-    // Kiểm tra và xử lý giảm giá
     const items = order.items.map(item => {
       const price = parseFloat(item.price).toFixed(2);
-      const productName = item.product ? item.product.product_name : 'Unknown Product'; // Sử dụng product_name
-      console.log(`Item: ${productName}, Quantity: ${item.quantity}, Price: ${price}`);
+      const productName = item.product ? item.product.product_name : 'Sản phẩm không xác định';
+      console.log(`Sản phẩm: ${productName}, Số lượng: ${item.quantity}, Giá: ${price}`);
       return {
         "name": productName,
         "sku": item.product_id.toString(),
@@ -49,12 +48,10 @@ exports.createPayment = async (req, res) => {
 
     const orderTotal = parseFloat(order.total_amount).toFixed(2);
 
-    console.log(`Calculated total: ${calculatedTotal}, Order total: ${orderTotal}`);
+    console.log(`Tổng tính toán: ${calculatedTotal}, Tổng đơn hàng: ${orderTotal}`);
 
-    // Kiểm tra nếu tổng số tiền của các mục khớp với tổng số tiền của đơn hàng
     if (parseFloat(calculatedTotal) !== parseFloat(orderTotal)) {
-      console.log(`Mismatch detected: Calculated total ${calculatedTotal}, Order total ${orderTotal}`);
-      // Điều chỉnh giá các mục sản phẩm để phản ánh giảm giá
+      console.log(`Phát hiện chênh lệch: Tổng tính toán ${calculatedTotal}, Tổng đơn hàng ${orderTotal}`);
       const discountFactor = parseFloat(orderTotal) / parseFloat(calculatedTotal);
       const adjustedItems = items.map(item => {
         item.price = (parseFloat(item.price) * discountFactor).toFixed(2);
@@ -65,11 +62,11 @@ exports.createPayment = async (req, res) => {
         return total + (parseFloat(item.price) * item.quantity);
       }, 0).toFixed(2);
 
-      console.log(`Adjusted total: ${adjustedTotal}, Order total: ${orderTotal}`);
+      console.log(`Tổng điều chỉnh: ${adjustedTotal}, Tổng đơn hàng: ${orderTotal}`);
 
       if (parseFloat(adjustedTotal) !== parseFloat(orderTotal)) {
-        console.log(`Mismatch detected after adjustment: Adjusted total ${adjustedTotal}, Order total ${orderTotal}`);
-        return res.status(400).send('Total amount mismatch after adjustment');
+        console.log(`Phát hiện chênh lệch sau điều chỉnh: Tổng điều chỉnh ${adjustedTotal}, Tổng đơn hàng ${orderTotal}`);
+        return res.status(400).send('Chênh lệch tổng số tiền sau điều chỉnh');
       }
 
       const create_payment_json = {
@@ -87,9 +84,9 @@ exports.createPayment = async (req, res) => {
           },
           "amount": {
             "currency": "USD",
-            "total": orderTotal, // Sử dụng tổng số tiền của đơn hàng
+            "total": orderTotal,
             "details": {
-              "subtotal": orderTotal // Đảm bảo subtotal khớp với tổng số tiền
+              "subtotal": orderTotal
             }
           },
           "description": `Order ID: ${order.order_id}`
@@ -98,8 +95,8 @@ exports.createPayment = async (req, res) => {
 
       paypal.payment.create(create_payment_json, function (error, payment) {
         if (error) {
-          console.error('PayPal Error:', error.response);
-          return res.status(500).send('Error creating PayPal payment');
+          console.error('Lỗi PayPal:', error.response);
+          return res.status(500).send('Lỗi tạo thanh toán PayPal');
         } else {
           for (let i = 0; i < payment.links.length; i++) {
             if (payment.links[i].rel === 'approval_url') {
@@ -124,9 +121,9 @@ exports.createPayment = async (req, res) => {
           },
           "amount": {
             "currency": "USD",
-            "total": orderTotal, // Sử dụng tổng số tiền của đơn hàng
+            "total": orderTotal,
             "details": {
-              "subtotal": orderTotal // Đảm bảo subtotal khớp với tổng số tiền
+              "subtotal": orderTotal
             }
           },
           "description": `Order ID: ${order.order_id}`
@@ -135,8 +132,8 @@ exports.createPayment = async (req, res) => {
 
       paypal.payment.create(create_payment_json, function (error, payment) {
         if (error) {
-          console.error('PayPal Error:', error.response);
-          return res.status(500).send('Error creating PayPal payment');
+          console.error('Lỗi PayPal:', error.response);
+          return res.status(500).send('Lỗi tạo thanh toán PayPal');
         } else {
           for (let i = 0; i < payment.links.length; i++) {
             if (payment.links[i].rel === 'approval_url') {
@@ -147,13 +144,10 @@ exports.createPayment = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error fetching order:', error);
-    return res.status(500).send('Internal server error');
+    console.error('Lỗi lấy đơn hàng:', error);
+    return res.status(500).send('Lỗi máy chủ nội bộ');
   }
 };
-
-
-
 
 exports.executePayment = async (req, res) => {
   const payerId = req.query.PayerID;
@@ -164,7 +158,7 @@ exports.executePayment = async (req, res) => {
     const order = await Order.findByPk(order_id);
 
     if (!order) {
-      return res.status(404).send('Order not found');
+      return res.status(404).send('Không tìm thấy đơn hàng');
     }
 
     const execute_payment_json = {
@@ -172,7 +166,7 @@ exports.executePayment = async (req, res) => {
       "transactions": [{
         "amount": {
           "currency": "USD",
-          "total": order.total_amount.toFixed(2) // Sử dụng tổng số tiền từ đơn hàng
+          "total": order.total_amount.toFixed(2)
         }
       }]
     };
@@ -180,16 +174,18 @@ exports.executePayment = async (req, res) => {
     paypal.payment.execute(paymentId, execute_payment_json, async function (error, payment) {
       if (error) {
         console.error(error.response);
-        return res.status(500).send('Payment failed');
+        order.status = 'pending';
+        await order.save();
+        return res.redirect(`/order/${order_id}?status=pending`);
       } else {
         order.status = 'completed';
         await order.save();
-        res.send('Payment successful');
+        return res.redirect(`/order/${order_id}?status=completed`);
       }
     });
   } catch (error) {
-    console.error('Error executing payment:', error);
-    return res.status(500).send('Internal server error');
+    console.error('Lỗi thực hiện thanh toán:', error);
+    return res.status(500).send('Lỗi máy chủ nội bộ');
   }
 };
 
@@ -198,14 +194,13 @@ exports.cancelPayment = async (req, res) => {
   try {
     const order = await Order.findByPk(order_id);
     if (!order) {
-      return res.status(404).send('Order not found');
+      return res.status(404).send('Không tìm thấy đơn hàng');
     }
-    // Update the status to 'cancelled'
     order.status = 'pending';
     await order.save();
-    res.send('Payment cancelled');
+    res.redirect(`/order/${order_id}?status=cancelled`);
   } catch (error) {
-    console.error('Error canceling payment:', error);
-    return res.status(500).send('Internal server error');
+    console.error('Lỗi hủy thanh toán:', error);
+    return res.status(500).send('Lỗi máy chủ nội bộ');
   }
 };
