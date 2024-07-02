@@ -44,6 +44,10 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const statisticsRoutes = require('./routes/statisticsRoutes');
+
+
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
@@ -58,6 +62,10 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/statistics', statisticsRoutes);
+
+
+
 
 // Socket.IO configuration
 io.on('connection', (socket) => {

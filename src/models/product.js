@@ -80,6 +80,7 @@ module.exports = (sequelize, DataTypes) => {
     Product.belongsTo(models.Category, { foreignKey: 'category_id', as: 'category' });
     Product.hasMany(models.CartItem, { foreignKey: 'product_id', as: 'cartItems' });
     Product.hasMany(models.Review, { foreignKey: 'product_id', as: 'reviews' });
+    Product.hasMany(models.OrderItem, { foreignKey: 'product_id', as: 'orderItems' });
   };
 
   return Product;
