@@ -35,6 +35,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
+      payment_method: {
+        type: Sequelize.ENUM('paypal', 'cod'), 
+        allowNull: false,
+        defaultValue: 'cod'
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

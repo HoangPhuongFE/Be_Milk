@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
         key: 'voucher_id'
       }
     },
+    payment_method: {
+      type: DataTypes.ENUM('paypal', 'cod'),
+      allowNull: false,
+      defaultValue: 'cod'
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

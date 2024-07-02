@@ -3,7 +3,7 @@ const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = requ
 const { Op } = require('sequelize');
 
 exports.createOrder = async (req, res) => {
-  const { voucher_code } = req.body;
+  const { voucher_code, payment_method } = req.body;
   const user_id = req.user.id;
 
   try {
@@ -63,7 +63,8 @@ exports.createOrder = async (req, res) => {
       user_id,
       status: 'pending',
       total_amount: total_amount,
-      voucher_id
+      voucher_id,
+      payment_method 
     });
 
     const orderItems = cart.items.map(item => ({
