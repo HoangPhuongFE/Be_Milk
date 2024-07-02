@@ -35,6 +35,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'cod'
     },
+    paid_amount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0
+    },
+    payment_info: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
