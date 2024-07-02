@@ -1,5 +1,3 @@
-// controllers/paymentController.js
-
 const paypal = require('../config/paypalConfig');
 const { Order, OrderItem, Product } = require('../models');
 
@@ -24,12 +22,10 @@ exports.createPayment = async (req, res) => {
     }
 
     if (order.payment_method === 'cod') {
-      // Xử lý thanh toán khi nhận hàng
       order.status = 'pending';
       await order.save();
       return res.status(201).send('Đơn hàng đang chờ xác nhận thanh toán khi nhận hàng');
     } else if (order.payment_method === 'paypal') {
-      // Xử lý thanh toán qua PayPal
       const items = order.items.map(item => {
         const price = parseFloat(item.price).toFixed(2);
         const productName = item.product ? item.product.product_name : 'Sản phẩm không xác định';
@@ -143,7 +139,6 @@ exports.createPayment = async (req, res) => {
   }
 };
 
-
 exports.executePayment = async (req, res) => {
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
@@ -167,12 +162,14 @@ exports.executePayment = async (req, res) => {
     };
 
     paypal.payment.execute(paymentId, execute_payment_json, async function (error, payment) {
-      order.status = 'pending';
-      await order.save();
       if (error) {
         console.error(error.response);
       } else {
         console.log('Thanh toán thành công:', payment);
+        order.status = 'pending';
+        order.payment_info = payment;
+        order.paid_amount = parseFloat(payment.transactions[0].amount.total);
+        await order.save();
       }
       return res.redirect(`/profile`);
     });
