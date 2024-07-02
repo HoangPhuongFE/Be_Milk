@@ -5,7 +5,7 @@ exports.createPaymentMethod = async (req, res) => {
 
   try {
     const paymentMethod = await PaymentMethod.create({
-      method_name
+    method_name  
     });
 
     res.status(201).json(paymentMethod);

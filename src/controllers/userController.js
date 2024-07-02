@@ -50,6 +50,7 @@ exports.login = async (req, res) => {
     // Check password
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) return res.status(400).json({ message: 'Invalid password' });
+    // console.log('User:', validPass); // Debug statement
 
     // Create and assign JWT
     const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
