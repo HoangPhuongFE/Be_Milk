@@ -1,3 +1,5 @@
+// controllers/paymentController.js
+
 const paypal = require('../config/paypalConfig');
 const { Order, OrderItem, Product } = require('../models');
 
@@ -172,16 +174,14 @@ exports.executePayment = async (req, res) => {
     };
 
     paypal.payment.execute(paymentId, execute_payment_json, async function (error, payment) {
+      order.status = 'pending';
+      await order.save();
       if (error) {
         console.error(error.response);
-        order.status = 'pending';
-        await order.save();
-        return res.redirect(`/order/${order_id}?status=pending`);
       } else {
-        order.status = 'completed';
-        await order.save();
-        return res.redirect(`/order/${order_id}?status=completed`);
+        console.log('Thanh toán thành công:', payment);
       }
+      return res.redirect(`/profile`);
     });
   } catch (error) {
     console.error('Lỗi thực hiện thanh toán:', error);
@@ -198,7 +198,7 @@ exports.cancelPayment = async (req, res) => {
     }
     order.status = 'pending';
     await order.save();
-    res.redirect(`/order/${order_id}?status=cancelled`);
+    res.redirect(`/profile`);
   } catch (error) {
     console.error('Lỗi hủy thanh toán:', error);
     return res.status(500).send('Lỗi máy chủ nội bộ');
