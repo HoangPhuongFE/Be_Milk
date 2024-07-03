@@ -9,8 +9,6 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     dialectOptions: {
       charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci',
-      useUTC: false,
       timezone: '+00:00'
     }
   },
@@ -22,8 +20,6 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     dialectOptions: {
       charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci',
-      useUTC: false,
       timezone: '+00:00'
     }
   },
@@ -35,8 +31,6 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     dialectOptions: {
       charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci',
-      useUTC: false,
       timezone: '+00:00'
     }
   }

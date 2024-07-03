@@ -1,8 +1,15 @@
 const { Category } = require('../models');
 
-// Tạo danh mục mới
+// Tạo danh mục mới 
 exports.createCategory = async (req, res) => {
   try {
+    const { name } = req.body;
+    // Kiểm tra xem danh mục đã tồn tại chưa
+    const categoryExist = await Category.findOne({ where: { name } });
+    if (categoryExist) {
+      return res.status(400).json({ message: 'Category already exists' });
+    }
+
     const category = await Category.create(req.body);
     res.status(201).json(category);
   } catch (err) {
@@ -36,6 +43,12 @@ exports.getCategoryById = async (req, res) => {
 // Cập nhật danh mục theo id
 exports.updateCategory = async (req, res) => {
   try {
+    const {name} = req.body;
+    // Kiểm tra xem danh mục đã tồn tại chưa
+    const existingCategory = await Category.findOne({ where: { name, category_id: { [Op.ne]: req.params.id } } });
+    if (existingCategory) {
+      return res.status(400).json({ message: 'Category name already exists' });
+    }
     const [updated] = await Category.update(req.body, {
       where: { category_id: req.params.id }
     });
