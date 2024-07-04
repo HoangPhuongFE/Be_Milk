@@ -22,4 +22,7 @@ router.post('/forgot-password', userController.forgotPassword);
 // Đặt lại mật khẩu
 router.post('/reset-password/:token', userController.resetPassword);
 
+// Lấy thông tin người dùng theo ID
+router.get('/:user_id', authenticateToken, authorizeRole(['user', 'admin', 'staff']), userController.getUserById);
+
 module.exports = router;

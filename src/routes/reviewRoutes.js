@@ -6,8 +6,9 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 // Create a new review
 router.post('/', authenticateToken, reviewController.createReview);
 
+
 // Get all reviews for a specific product
-router.get('/all', reviewController.getReviews);
+router.get('/product/:product_id', reviewController.getReviews); // Sửa đổi URL để lấy review theo product_id
 
 // Get a single review by ID
 router.get('/:review_id', reviewController.getReviewById);

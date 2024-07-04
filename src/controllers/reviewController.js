@@ -1,15 +1,11 @@
 const { Review } = require('../models');
 
 exports.createReview = async (req, res) => {
-  
   const { product_id, rating, comment } = req.body;
-  const user_id =req.user?.id
-
-
+  const user_id = req.user?.id;
   if (!user_id) {
     return res.status(400).json({ message: 'User ID is required' });
   }
-
   try {
     const review = await Review.create({
       product_id,
@@ -56,8 +52,6 @@ exports.updateReview = async (req, res) => {
   const { rating, comment } = req.body;
   const user_id = req.user?.id;
 
-  // console.log(`Yêu cầu cập nhật đánh giá với review_id: ${review_id}, bởi user_id: ${user_id}`);
-
   try {
     const review = await Review.findByPk(review_id);
 
@@ -73,14 +67,12 @@ exports.updateReview = async (req, res) => {
     review.comment = comment;
 
     await review.save();
-
-    console.log(`Đánh giá đã được cập nhật thành công: ${JSON.stringify(review)}`);
     res.status(200).json(review);
   } catch (error) {
-    console.error(`Lỗi khi cập nhật đánh giá: ${error.message}`);
     res.status(400).json({ message: error.message });
   }
 };
+
 exports.deleteReview = async (req, res) => {
   const { review_id } = req.params;
   const user_id = req.user.user_id;

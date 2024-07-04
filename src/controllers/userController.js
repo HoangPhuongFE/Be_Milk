@@ -243,3 +243,18 @@ exports.resetPassword = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+// Lấy thông tin người dùng theo ID
+exports.getUserById = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const user = await User.findByPk(user_id, {
+      attributes: ['user_id', 'full_name', 'email', 'avatar_url'] // Chỉ lấy những thông tin cần thiết
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
