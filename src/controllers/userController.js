@@ -71,6 +71,23 @@ exports.getUser = async (req, res) => {
   }
 };
 
+// Lấy thông tin người dùng theo ID
+exports.getUserById = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const user = await User.findByPk(user_id, {
+      attributes: ['user_id', 'full_name', 'email', 'avatar_url'] // Chỉ lấy những thông tin cần thiết
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
 // Lấy tất cả người dùng (Chỉ dành cho Admin)
 exports.getAllUsers = async (req, res) => {
   try {
@@ -239,21 +256,6 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: 'Mật khẩu đã được đặt lại thành công' });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-// Lấy thông tin người dùng theo ID
-exports.getUserById = async (req, res) => {
-  try {
-    const { user_id } = req.params;
-    const user = await User.findByPk(user_id, {
-      attributes: ['user_id', 'full_name', 'email', 'avatar_url'] // Chỉ lấy những thông tin cần thiết
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

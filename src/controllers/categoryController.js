@@ -1,17 +1,35 @@
 const { Category } = require('../models');
+const { Op } = require('sequelize');
 
 // Tạo danh mục mới 
 exports.createCategory = async (req, res) => {
   try {
     const { name } = req.body;
     // Kiểm tra xem danh mục đã tồn tại chưa
-    const categoryExist = await Category.findOne({ where: { name } });
+    const categoryExist = await Category.findOne({ where: { name: { [Op.eq]: name } } });
     if (categoryExist) {
       return res.status(400).json({ message: 'Category already exists' });
     }
 
     const category = await Category.create(req.body);
     res.status(201).json(category);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.updateCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const { id } = req.params;
+    // Kiểm tra xem danh mục đã tồn tại chưa
+    const categoryExist = await Category.findOne({ where: { name: { [Op.eq]: name }, category_id: { [Op.ne]: id } } });
+    if (categoryExist) {
+      return res.status(400).json({ message: 'Category already exists' });
+    }
+
+    const updatedCategory = await Category.update(req.body, { where: { category_id: id } });
+    res.status(200).json(updatedCategory);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

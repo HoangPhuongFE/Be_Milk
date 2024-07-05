@@ -1,5 +1,4 @@
-// controllers/orderController.js
-const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher } = require('../models');
+const { Order, OrderItem, Cart, CartItem, Product, Voucher, UserVoucher, User } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createOrder = async (req, res) => {
@@ -116,12 +115,11 @@ exports.getUserOrders = async (req, res) => {
 };
 
 exports.getOrderById = async (req, res) => {
-  const user_id = req.user.id;
   const { order_id } = req.params;
 
   try {
     const order = await Order.findOne({
-      where: { order_id, user_id },
+      where: { order_id },
       include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
     });
 
@@ -135,7 +133,17 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
+exports.getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
+    });
 
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
 exports.updateOrderStatus = async (req, res) => {
   const { order_id, status } = req.body;

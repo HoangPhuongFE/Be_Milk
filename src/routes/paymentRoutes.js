@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const paymentController = require('../controllers/paymentController'); // Đảm bảo đúng đường dẫn tới controller
+const paymentController = require('../controllers/paymentController');
+const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 
-router.post('/pay', paymentController.createPayment);
+router.post('/pay', authenticateToken, paymentController.createPayment);
 router.get('/success', paymentController.executePayment);
 router.get('/cancel', paymentController.cancelPayment);
 

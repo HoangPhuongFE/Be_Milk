@@ -94,3 +94,12 @@ exports.deleteReview = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+exports.getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.findAll();
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
