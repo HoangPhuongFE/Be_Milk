@@ -14,5 +14,13 @@ router.get('/top-selling-products', authenticateToken, authorizeRole(['admin', '
 router.get('/customer-statistics', authenticateToken, authorizeRole(['admin', 'staff']), statisticsController.getCustomerStatistics);
 // thông kê doanh thu theo phương thức thanh toán
 router.get('/revenue-by-payment-method', authenticateToken, authorizeRole(['admin', 'staff']), statisticsController.getRevenueByPaymentMethod);
+// thông kê  sản phẩm
+router.get('/product-statistics', authenticateToken, authorizeRole(['admin', 'staff']), statisticsController.getProductStatistics);
+
+
+
+
+
+
 
 module.exports = router;
