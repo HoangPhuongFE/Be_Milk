@@ -126,7 +126,10 @@ exports.getOrderById = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-
+    // check xem đúng user chưa nếu đúg thì xổ , không đúng next
+    if (order.user_id !== req.user.id) {
+      return res.status(403).json({ message: 'You do not have permission to access this order' });
+    }
     res.status(200).json(order);
   } catch (err) {
     res.status(400).json({ message: err.message });
