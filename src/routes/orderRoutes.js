@@ -11,3 +11,4 @@ router.put('/status', authenticateToken, authorizeRole(['admin', 'staff']), orde
 router.delete('/:order_id', authenticateToken, authorizeRole(['admin', 'staff']), orderController.deleteOrder); // Yêu cầu xác thực để xóa đơn hàng
 
 module.exports = router;
+

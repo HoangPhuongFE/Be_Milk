@@ -21,6 +21,8 @@ exports.createPayment = async (req, res) => {
       return res.status(404).send('Không tìm thấy đơn hàng');
     }
 
+    console.log('Order details:', JSON.stringify(order, null, 2));
+
     const items = order.items.map(item => {
       const price = parseFloat(item.price).toFixed(2);
       const productName = item.product ? item.product.product_name : 'Sản phẩm không xác định';
@@ -39,6 +41,14 @@ exports.createPayment = async (req, res) => {
 
     const orderTotal = parseFloat(order.total_amount).toFixed(2);
 
+    console.log('Calculated total:', calculatedTotal);
+    console.log('Order total:', orderTotal);
+
+    if (calculatedTotal !== orderTotal) {
+      console.log('Difference in total. Voucher might be applied.');
+      // Có thể thêm xử lý đặc biệt cho trường hợp có voucher ở đây
+    }
+
     const create_payment_json = {
       "intent": "sale",
       "payer": {
@@ -56,20 +66,24 @@ exports.createPayment = async (req, res) => {
           "currency": "USD",
           "total": orderTotal,
           "details": {
-            "subtotal": orderTotal
+            "subtotal": calculatedTotal,
+            "discount": (calculatedTotal - orderTotal).toFixed(2)
           }
         },
         "description": `Order ID: ${order.order_id}`
       }]
     };
 
+    console.log('PayPal payment request:', JSON.stringify(create_payment_json, null, 2));
+
     paypal.payment.create(create_payment_json, function (error, payment) {
       if (error) {
         console.error('Lỗi tạo thanh toán PayPal:', error);
-        return res.status(500).send('Lỗi tạo thanh toán PayPal');
+        return res.status(500).json({ error: 'Lỗi tạo thanh toán PayPal', details: error.message });
       } else {
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === 'approval_url') {
+            console.log('PayPal approval URL:', payment.links[i].href);
             return res.status(201).json({ approval_url: payment.links[i].href });
           }
         }
@@ -78,7 +92,7 @@ exports.createPayment = async (req, res) => {
     });
   } catch (error) {
     console.error('Lỗi máy chủ nội bộ:', error);
-    return res.status(500).send('Lỗi máy chủ nội bộ');
+    return res.status(500).json({ error: 'Lỗi máy chủ nội bộ', details: error.message });
   }
 };
 
@@ -93,6 +107,8 @@ exports.executePayment = async (req, res) => {
     if (!order) {
       return res.status(404).send('Không tìm thấy đơn hàng');
     }
+
+    console.log('Executing payment for order:', order_id);
 
     const execute_payment_json = {
       "payer_id": payerId,
@@ -109,10 +125,17 @@ exports.executePayment = async (req, res) => {
         console.error('Lỗi thực hiện thanh toán:', error.response);
         return res.status(500).send('Lỗi thực hiện thanh toán');
       } else {
-        order.status = 'completed';
-        await order.save();
-        console.log('Thanh toán thành công:', payment);
-        return res.redirect(`http://localhost:5173/profile`);
+        try {
+          order.status = 'completed';
+          order.payment_method = 'paypal';  // Cập nhật payment_method thành 'paypal'
+          await order.save();
+          console.log('Thanh toán thành công:', payment);
+          console.log('Đã cập nhật order:', order.id, 'Status:', order.status, 'Payment method:', order.payment_method);
+          return res.redirect(`http://localhost:5173/profile`);
+        } catch (saveError) {
+          console.error('Lỗi khi lưu thông tin đơn hàng:', saveError);
+          return res.status(500).send('Lỗi khi cập nhật thông tin đơn hàng');
+        }
       }
     });
   } catch (error) {
@@ -129,6 +152,7 @@ exports.cancelPayment = async (req, res) => {
       return res.status(404).send('Không tìm thấy đơn hàng');
     }
     order.status = 'pending';
+    // Không thay đổi payment_method ở đây
     await order.save();
     res.redirect(`/profile`);
   } catch (error) {
