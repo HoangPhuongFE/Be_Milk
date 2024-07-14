@@ -6,24 +6,28 @@ const sequelize = require('sequelize');
 exports.getRevenueStatistics = async (req, res) => {
   try {
     const { period } = req.query; // 'day', 'week', 'month', 'year'
-    let groupBy, dateRange;
+    let groupBy, dateRange, orderBy;
 
     switch (period) {
       case 'day':
         groupBy = [sequelize.fn('DATE', sequelize.col('createdAt'))];
         dateRange = [sequelize.literal("DATE_SUB(NOW(), INTERVAL 1 DAY)"), sequelize.literal("NOW()")];
+        orderBy = sequelize.literal('DATE(createdAt)');
         break;
       case 'week':
         groupBy = [sequelize.fn('WEEK', sequelize.col('createdAt'))];
         dateRange = [sequelize.literal("DATE_SUB(NOW(), INTERVAL 1 WEEK)"), sequelize.literal("NOW()")];
+        orderBy = sequelize.literal('WEEK(createdAt)');
         break;
       case 'month':
         groupBy = [sequelize.fn('MONTH', sequelize.col('createdAt'))];
         dateRange = [sequelize.literal("DATE_SUB(NOW(), INTERVAL 1 MONTH)"), sequelize.literal("NOW()")];
+        orderBy = sequelize.literal('MONTH(createdAt)');
         break;
       case 'year':
         groupBy = [sequelize.fn('YEAR', sequelize.col('createdAt'))];
         dateRange = [sequelize.literal("DATE_SUB(NOW(), INTERVAL 1 YEAR)"), sequelize.literal("NOW()")];
+        orderBy = sequelize.literal('YEAR(createdAt)');
         break;
       default:
         return res.status(400).send('Invalid period');
@@ -41,7 +45,7 @@ exports.getRevenueStatistics = async (req, res) => {
         }
       },
       group: groupBy,
-      order: [[sequelize.col('createdAt'), 'ASC']]
+      order: [orderBy]
     });
 
     res.status(200).json(revenueData);
@@ -76,7 +80,7 @@ exports.getTopSellingProducts = async (req, res) => {
         [sequelize.fn('SUM', sequelize.col('OrderItem.quantity')), 'total_sold']
       ],
       include: [{ model: Product, as: 'product', attributes: ['product_name'] }],
-      group: ['product_id'],
+      group: ['product_id', 'product.product_name'],
       order: [[sequelize.fn('SUM', sequelize.col('OrderItem.quantity')), 'DESC']],
       limit: 10
     });
@@ -98,7 +102,7 @@ exports.getCustomerStatistics = async (req, res) => {
         [sequelize.fn('SUM', sequelize.col('Orders.total_amount')), 'total_spent']
       ],
       include: [{ model: Order, as: 'orders', attributes: [] }],
-      group: ['User.user_id'],
+      group: ['User.user_id', 'User.full_name'],
       order: [[sequelize.fn('SUM', sequelize.col('Orders.total_amount')), 'DESC']]
     });
 
