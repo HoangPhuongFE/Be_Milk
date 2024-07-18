@@ -58,6 +58,13 @@ exports.createOrder = async (req, res) => {
 
     if (total_amount < 0) total_amount = 0;
 
+    // Check product quantities before creating the order
+    for (let item of cart.items) {
+      if (item.quantity > item.product.quantity) {
+        return res.status(400).json({ message: `Quantity for product ${item.product.name} exceeds available stock` });
+      }
+    }
+
     const order = await Order.create({
       user_id,
       status: 'pending',
@@ -97,6 +104,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 
 exports.getUserOrders = async (req, res) => {
