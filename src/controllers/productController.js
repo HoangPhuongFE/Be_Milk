@@ -1,6 +1,5 @@
 const e = require('express');
 const { Product } = require('../models');
-
 // Tạo sản phẩm mới
 exports.createProduct = async (req, res) => {
   try {

@@ -17,5 +17,4 @@ router.put('/:id', authenticateToken, authorizeRole(['admin','staff']), productC
 
 // Xóa sản phẩm (Chỉ dành cho Admin)
 router.delete('/:id', authenticateToken, authorizeRole(['admin','staff']), productController.deleteProduct);
-
 module.exports = router;
