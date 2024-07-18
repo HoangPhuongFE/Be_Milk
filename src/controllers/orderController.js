@@ -61,7 +61,7 @@ exports.createOrder = async (req, res) => {
     // Check product quantities before creating the order
     for (let item of cart.items) {
       if (item.quantity > item.product.quantity) {
-        return res.status(400).json({ message: `Quantity for product ${item.product.name} exceeds available stock` });
+        return res.status(400).json({ message: `Quantity for product ${item.product.product_name} exceeds available stock` });
       }
     }
 
@@ -83,8 +83,11 @@ exports.createOrder = async (req, res) => {
     await OrderItem.bulkCreate(orderItems);
 
     for (let item of cart.items) {
+      const newQuantity = item.product.quantity - item.quantity;
+      const newStatus = newQuantity === 0 ? 'out_of_stock' : item.product.status;
+
       await Product.update(
-        { quantity: item.product.quantity - item.quantity },
+        { quantity: newQuantity, status: newStatus },
         { where: { product_id: item.product_id } }
       );
     }

@@ -21,6 +21,7 @@ exports.createProduct = async (req, res) => {
       userManual,
       outstandingFeatures
     } = req.body;
+    const productStatus = quantity === 0 ? 'out_of_stock' : status || 'available';
     const product = await Product.create({
       category_id,
       product_name,
