@@ -216,7 +216,6 @@ exports.updateOrderStatus = async (req, res) => {
         }
       }
     }
-
     order.status = status;
     await order.save();
 

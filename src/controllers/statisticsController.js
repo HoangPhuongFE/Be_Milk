@@ -244,14 +244,13 @@ exports.getRevenueByPaymentMethod = async (req, res) => {
 // Thống kê sản phẩm
 exports.getProductStatistics = async (req, res) => {
   try {
-    // Lấy thống kê từng sản phẩm
     const productStats = await Product.findAll({
       attributes: [
         'product_id',
         'product_name',
         'quantity', // Số lượng tồn kho
-        [sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'total_sold'],
-        [sequelize.fn('SUM', sequelize.col('orderItems.price')), 'total_revenue']
+        [sequelize.fn('SUM', sequelize.literal('orderItems.quantity * orderItems.price')), 'total_revenue'],
+        [sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'total_sold']
       ],
       include: [{
         model: OrderItem, as: 'orderItems',
@@ -261,20 +260,23 @@ exports.getProductStatistics = async (req, res) => {
       order: [[sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'DESC']]
     });
 
-    // Tính tổng số lượng sản phẩm đã bán và tổng doanh thu
+    console.log('Product Stats:', productStats);
+
     const totalStats = await OrderItem.findOne({
       attributes: [
         [sequelize.fn('SUM', sequelize.col('quantity')), 'total_quantity'],
-        [sequelize.fn('SUM', sequelize.col('price')), 'total_revenue']
+        [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
       ]
     });
+
+    console.log('Total Stats:', totalStats);
 
     res.status(200).json({
       productStats,
       totalStats
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
-// 
