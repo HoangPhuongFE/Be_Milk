@@ -63,6 +63,9 @@ exports.createOrder = async (req, res) => {
       if (item.quantity > item.product.quantity) {
         return res.status(400).json({ message: `Quantity for product ${item.product.product_name} exceeds available stock` });
       }
+      if (item.product.status === 'discontinued') {
+        return res.status(400).json({ message: `Product ${item.product.product_name} is discontinued` });
+      }
     }
 
     const order = await Order.create({
@@ -166,7 +169,8 @@ exports.updateOrderStatus = async (req, res) => {
     const order = await Order.findByPk(order_id, {
       include: [{
         model: OrderItem,
-        as: 'items'
+        as: 'items',
+        include: [{ model: Product, as: 'product' }]
       }]
     });
     
@@ -179,7 +183,7 @@ exports.updateOrderStatus = async (req, res) => {
       await UserVoucher.destroy({ where: { user_id: order.user_id, used: true } });
       
       // Trả lại sản phẩm vào giỏ hàng
-      const cart = await Cart.findOne({ where: { user_id: order.user_id } });
+      let cart = await Cart.findOne({ where: { user_id: order.user_id } });
       if (!cart) {
         // Nếu giỏ hàng chưa tồn tại, tạo mới giỏ hàng
         cart = await Cart.create({ user_id: order.user_id });
@@ -212,6 +216,12 @@ exports.updateOrderStatus = async (req, res) => {
         const product = await Product.findByPk(item.product_id);
         if (product) {
           product.quantity += item.quantity;
+          // Update the status based on the new quantity
+          if (product.quantity === 0) {
+            product.status = 'out_of_stock';
+          } else if (product.quantity > 0) {
+            product.status = 'available';
+          }
           await product.save();
         }
       }
@@ -224,6 +234,7 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.deleteOrder = async (req, res) => {
   const { order_id } = req.params;
