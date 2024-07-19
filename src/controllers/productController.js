@@ -64,7 +64,7 @@ exports.getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    if (product.status === 'discontinued' || product.status === 'out_of_stock') {
+    if ( product.status === 'out_of_stock') {
       return res.status(200).json({ message: `This product is ${product.status} and cannot be purchased.` });
     }
     res.status(200).json(product);

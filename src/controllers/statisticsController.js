@@ -1,4 +1,4 @@
-const { Order, User ,OrderItem,Product } = require('../models');
+const { Order, User, OrderItem, Product } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('sequelize');
 
@@ -86,9 +86,9 @@ function fillMissingDates(data, period, startDate, endDate) {
 // Helper function to get week number
 function getWeekNumber(d) {
   d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-  var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   return weekNo.toString().padStart(2, '0');
 }
 
@@ -145,6 +145,9 @@ exports.getRevenueStatistics = async (req, res) => {
       where: {
         createdAt: {
           [Op.between]: [new Date(startDate), new Date(endDate)]
+        },
+        status: {
+          [Op.ne]: 'cancelled'
         }
       },
       group: groupBy,
@@ -174,6 +177,11 @@ exports.getOrderStatusCounts = async (req, res) => {
         'status',
         [sequelize.fn('COUNT', sequelize.col('order_id')), 'count']
       ],
+      where: {
+        status: {
+          [Op.ne]: 'cancelled'
+        }
+      },
       group: ['status']
     });
 
@@ -191,7 +199,23 @@ exports.getTopSellingProducts = async (req, res) => {
         'product_id',
         [sequelize.fn('SUM', sequelize.col('OrderItem.quantity')), 'total_sold']
       ],
-      include: [{ model: Product, as: 'product', attributes: ['product_name'] }],
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          attributes: ['product_name']
+        },
+        {
+          model: Order,
+          as: 'order',
+          attributes: [],
+          where: {
+            status: {
+              [Op.ne]: 'cancelled'
+            }
+          }
+        }
+      ],
       group: ['product_id', 'product.product_name'],
       order: [[sequelize.fn('SUM', sequelize.col('OrderItem.quantity')), 'DESC']],
       limit: 10
@@ -213,7 +237,16 @@ exports.getCustomerStatistics = async (req, res) => {
         [sequelize.fn('COUNT', sequelize.col('Orders.order_id')), 'total_orders'],
         [sequelize.fn('SUM', sequelize.col('Orders.total_amount')), 'total_spent']
       ],
-      include: [{ model: Order, as: 'orders', attributes: [] }],
+      include: [{
+        model: Order,
+        as: 'orders',
+        attributes: [],
+        where: {
+          status: {
+            [Op.ne]: 'cancelled'
+          }
+        }
+      }],
       group: ['User.user_id', 'User.full_name'],
       order: [[sequelize.fn('SUM', sequelize.col('Orders.total_amount')), 'DESC']]
     });
@@ -232,6 +265,11 @@ exports.getRevenueByPaymentMethod = async (req, res) => {
         'payment_method',
         [sequelize.fn('SUM', sequelize.col('total_amount')), 'total_revenue']
       ],
+      where: {
+        status: {
+          [Op.ne]: 'cancelled'
+        }
+      },
       group: ['payment_method']
     });
 
@@ -253,8 +291,19 @@ exports.getProductStatistics = async (req, res) => {
         [sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'total_sold']
       ],
       include: [{
-        model: OrderItem, as: 'orderItems',
-        attributes: []
+        model: OrderItem,
+        as: 'orderItems',
+        attributes: [],
+        include: [{
+          model: Order,
+          as: 'order',
+          attributes: [],
+          where: {
+            status: {
+              [Op.ne]: 'cancelled'
+            }
+          }
+        }]
       }],
       group: ['Product.product_id', 'Product.product_name', 'Product.quantity'],
       order: [[sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'DESC']]
@@ -266,7 +315,17 @@ exports.getProductStatistics = async (req, res) => {
       attributes: [
         [sequelize.fn('SUM', sequelize.col('quantity')), 'total_quantity'],
         [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
-      ]
+      ],
+      include: [{
+        model: Order,
+        as: 'order',
+        attributes: [],
+        where: {
+          status: {
+            [Op.ne]: 'cancelled'
+          }
+        }
+      }]
     });
 
     console.log('Total Stats:', totalStats);
