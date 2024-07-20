@@ -177,11 +177,6 @@ exports.getOrderStatusCounts = async (req, res) => {
         'status',
         [sequelize.fn('COUNT', sequelize.col('order_id')), 'count']
       ],
-      where: {
-        status: {
-          [Op.ne]: 'cancelled'
-        }
-      },
       group: ['status']
     });
 
@@ -190,6 +185,7 @@ exports.getOrderStatusCounts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Thống kê sản phẩm bán chạy
 exports.getTopSellingProducts = async (req, res) => {
@@ -309,9 +305,7 @@ exports.getProductStatistics = async (req, res) => {
       order: [[sequelize.fn('SUM', sequelize.col('orderItems.quantity')), 'DESC']]
     });
 
-    console.log('Product Stats:', productStats);
-
-    const totalStats = await OrderItem.findOne({
+    const totalStats = await OrderItem.findAll({
       attributes: [
         [sequelize.fn('SUM', sequelize.col('quantity')), 'total_quantity'],
         [sequelize.fn('SUM', sequelize.literal('quantity * price')), 'total_revenue']
@@ -325,14 +319,13 @@ exports.getProductStatistics = async (req, res) => {
             [Op.ne]: 'cancelled'
           }
         }
-      }]
+      }],
+      raw: true
     });
-
-    console.log('Total Stats:', totalStats);
 
     res.status(200).json({
       productStats,
-      totalStats
+      totalStats: totalStats[0]
     });
   } catch (err) {
     console.error(err);
